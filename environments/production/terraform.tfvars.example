@@ -1,0 +1,12 @@
+# Copy this file to terraform.tfvars and fill in values
+# Do not commit terraform.tfvars — it may contain sensitive values
+# terraform.tfvars is in .gitignore
+
+aws_region          = "eu-west-1"
+cluster_name        = "production-eks"
+vpc_cidr            = "10.0.0.0/16"
+kubernetes_version  = "1.31"
+node_instance_types = ["t3.medium"]
+node_desired_count  = 2
+node_min_count      = 1
+node_max_count      = 4

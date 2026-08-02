@@ -2,7 +2,10 @@
 
 Terraform modules for a security-hardened EKS cluster on AWS. Covers private API endpoint, KMS secrets encryption, IMDSv2 enforcement, encrypted EBS volumes, and IRSA for pod-level IAM credentials. Built as part of bridging CKS (Certified Kubernetes Security Specialist) knowledge to AWS SAP-C02 architecture patterns.
 
-> **Status:** Reference architecture written during AWS SAP-C02 study. The security decisions are production-grade and each is defended below — but this has not yet been applied against a live AWS account. The control-plane operations EKS manages (etcd, certs, API server) are ones I run by hand on a real kubeadm cluster in my other repos; this repo is the AWS security wrapper around that.
+> **Status — study roadmap, not yet deployed.**
+> This is a reference architecture I'm building as part of my AWS SAP-C02 study path. It is deliberately ambitious: it integrates VPC design, EKS control-plane security, IRSA identity federation, and KMS encryption into one hardened stack. I have **not** yet applied it against a live AWS account — that is the next milestone as I finish the SAP-C02.
+>
+> Where it fits: my hands-on Kubernetes experience is on the **kubeadm cluster I run myself** (see related repos), where I operate the control plane by hand — etcd, certs, the API server — which is the exact layer EKS manages for you. This repo represents the direction I'm growing toward: layering **cloud security architecture** on top of the CKA/CKS + on-prem infrastructure foundation I already have. It's the plan and the target, documented honestly — not a claim of production experience.
 
 ## Architecture
 

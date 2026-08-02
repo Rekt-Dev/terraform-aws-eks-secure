@@ -2,6 +2,8 @@
 
 Terraform modules for a security-hardened EKS cluster on AWS. Covers private API endpoint, KMS secrets encryption, IMDSv2 enforcement, encrypted EBS volumes, and IRSA for pod-level IAM credentials. Built as part of bridging CKS (Certified Kubernetes Security Specialist) knowledge to AWS SAP-C02 architecture patterns.
 
+> **Status:** Reference architecture written during AWS SAP-C02 study. The security decisions are production-grade and each is defended below — but this has not yet been applied against a live AWS account. The control-plane operations EKS manages (etcd, certs, API server) are ones I run by hand on a real kubeadm cluster in my other repos; this repo is the AWS security wrapper around that.
+
 ## Architecture
 
 ```
@@ -116,15 +118,15 @@ metadata:
 
 The EKS Pod Identity Webhook (automatically installed) intercepts this annotation and injects the OIDC token into the pod environment, which the AWS SDK picks up automatically.
 
-## Lessons Learned
+## Design Considerations
 
-**Private endpoints require VPC-accessible CI runners.** Setting `endpoint_public_access = false` broke our GitHub Actions workflow immediately. Migrated to a self-hosted runner EC2 instance inside the VPC — adds operational overhead but makes the security tradeoff real.
+**Private endpoints require VPC-accessible CI runners.** With `endpoint_public_access = false`, a cloud-hosted CI runner (e.g. GitHub Actions' shared runners) cannot reach the API server at all — CI would need a self-hosted runner inside the VPC, or CodeBuild with VPC access. That operational cost is the real tradeoff for removing public API exposure entirely.
 
-**KMS key deletion is irreversible.** With a 7-day deletion window, if the EKS KMS key is deleted, encrypted secrets cannot be decrypted. Test key rotation in a non-production cluster first. The key ARN is embedded in the encryption config — it cannot be changed after cluster creation.
+**KMS key deletion is irreversible.** With a 7-day deletion window, if the EKS KMS key is deleted, encrypted secrets can no longer be decrypted. The key ARN is embedded in the encryption config and cannot be changed after cluster creation — so key lifecycle has to be planned up front, and rotation validated in a throwaway cluster before it matters in production.
 
-**IMDSv2 broke some older SDKs.** Applications using AWS SDK v1 in some languages do not support IMDSv2 by default. Audit all container images for SDK versions before enabling IMDSv2. The hop limit catches anything trying to use IMDS from inside a container regardless of SDK version.
+**IMDSv2 can break older SDKs.** Applications using AWS SDK v1 in some languages do not support IMDSv2 by default, so container images should be audited for SDK versions before enforcing it. The hop limit of 1 is the backstop — it blocks anything trying to reach IMDS from inside a container regardless of SDK version.
 
-**IRSA trust policy conditions matter.** The IRSA module requires both `sub` and `aud` conditions in the trust policy. Omitting `aud` allows any service using the same OIDC provider to assume the role. The generated trust policies in this module include both conditions.
+**IRSA trust policy conditions matter.** The IRSA module sets both `sub` and `aud` conditions in the trust policy. Omitting `aud` would let any service using the same OIDC provider assume the role. The generated trust policies here include both.
 
 ## Related Repositories
 

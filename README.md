@@ -1,5 +1,7 @@
 # terraform-aws-eks-secure
 
+> **Status: work in progress — active study lab.** A hands-on learning project I'm actively building as part of AWS SAP-C02 study, not a production deployment. Structure and scope are still evolving.
+
 Terraform modules for a security-hardened EKS cluster on AWS. Covers private API endpoint, KMS secrets encryption, IMDSv2 enforcement, encrypted EBS volumes, and IRSA for pod-level IAM credentials. Built as part of bridging CKS (Certified Kubernetes Security Specialist) knowledge to AWS SAP-C02 architecture patterns.
 
 > **Status — study roadmap, not yet deployed.**
